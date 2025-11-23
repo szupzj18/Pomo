@@ -26,7 +26,7 @@
 
 ### 方式 1: 使用 Xcode
 
-1. 使用 Xcode 打开项目文件夹
+1. 打开根目录中的 `Package.swift` 或打开 `PomodoroTimer/PomodoroTimer` 现有 Xcode 工程目录
 2. 选择 "PomodoroTimer" scheme
 3. 点击运行 (⌘R)
 
@@ -53,9 +53,9 @@ swift build -c release
    - Organization Identifier: com.yourname.PomodoroTimer
    - Interface: SwiftUI
    - Language: Swift
-5. 将所有 `.swift` 文件添加到项目中
+5. 将 `PomodoroApp.swift`、`PomodoroManager.swift`、`PomodoroSession.swift`、`PomodoroMenuView.swift`、`HeatmapView.swift` 添加到项目（路径：`PomodoroTimer/PomodoroTimer/`）
 6. 在项目设置中:
-   - 将 Info.plist 添加到项目
+   - 将 Info.plist 添加到项目（路径：`PomodoroTimer/PomodoroTimer/Info.plist`）
    - 最低部署目标设置为 macOS 13.0 或更高
 
 ## 📱 系统要求

@@ -48,6 +48,9 @@ Package.resolved
 
 .build/
 
+# Local app bundle (do not commit built artifacts)
+PomodoroTimer.app/
+
 # CocoaPods
 #
 # We recommend against adding the Pods directory to your .gitignore. However

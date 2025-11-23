@@ -20,7 +20,9 @@ class PomodoroManager: ObservableObject {
     
     init() {
         loadSessions()
-        requestNotificationPermission()
+        if Bundle.main.bundleURL.pathExtension == "app" {
+            requestNotificationPermission()
+        }
     }
     
     func startTimer() {
@@ -81,10 +83,14 @@ class PomodoroManager: ObservableObject {
             if let error = error {
                 print("Error requesting notification permission: \(error)")
             }
+            if granted {
+                self.sendNotification(title: "番茄时钟已启动", body: "点击菜单栏图标开始专注")
+            }
         }
     }
     
     private func sendNotification(title: String, body: String) {
+        guard Bundle.main.bundleURL.pathExtension == "app" else { return }
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body

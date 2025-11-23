@@ -20,8 +20,8 @@
 
 | 文件名 | 描述 | 状态 |
 |--------|------|------|
-| `Package.swift` | Swift Package Manager 配置 | ✅ 完成 |
-| `Info.plist` | macOS 应用配置 | ✅ 完成 |
+| `Package.swift` | Swift Package Manager 配置（路径：`Package.swift`） | ✅ 完成 |
+| `Info.plist` | macOS 应用配置（路径：`PomodoroTimer/PomodoroTimer/Info.plist`） | ✅ 完成 |
 | `.gitignore` | Git 忽略规则 | ✅ 完成 |
 
 ### 文档文件 (6 个文档，共 1400+ 行)
@@ -29,8 +29,8 @@
 | 文件名 | 描述 | 状态 |
 |--------|------|------|
 | `README.md` | 项目说明和功能介绍 | ✅ 完成 |
-| `QUICKSTART.md` | 快速开始指南 | ✅ 完成 |
-| `BUILD_GUIDE.md` | 详细构建指南 | ✅ 完成 |
+| `PROJECT_OVERVIEW.md` | 技术架构和设计文档 | ✅ 完成 |
+| `PROJECT_SUMMARY.md` | 项目总结（本文件） | ✅ 完成 |
 | `PROJECT_OVERVIEW.md` | 技术架构和设计文档 | ✅ 完成 |
 | `DEMO_SCRIPT.md` | 演示脚本和展示指南 | ✅ 完成 |
 | `PROJECT_SUMMARY.md` | 项目总结（本文件） | ✅ 完成 |
@@ -104,7 +104,7 @@
 3. 在 Info 中添加 `LSUIElement = YES`
 4. 按 ⌘R 运行
 
-**详细步骤**: 查看 `BUILD_GUIDE.md`
+**详细步骤**: 参考 `README.md` 的 Xcode 与 SPM 章节
 
 ### 方式 2: 命令行构建
 
@@ -116,7 +116,7 @@ swift build -c release
 ./.build/release/PomodoroTimer
 ```
 
-**详细说明**: 查看 `QUICKSTART.md`
+**详细说明**: 参考 `README.md` 的命令行构建章节
 
 ## 🎨 设计特点
 
@@ -340,9 +340,7 @@ Circle()
 ## 📞 支持与反馈
 
 ### 使用帮助
-- 查看 `README.md` 了解基本信息
-- 查看 `QUICKSTART.md` 快速上手
-- 查看 `BUILD_GUIDE.md` 解决构建问题
+- 查看 `README.md` 了解基本信息与构建指南
 
 ### 技术问题
 - 查看 `PROJECT_OVERVIEW.md` 了解技术细节

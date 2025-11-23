@@ -3,6 +3,7 @@ import SwiftUI
 struct PomodoroMenuView: View {
     @EnvironmentObject var manager: PomodoroManager
     @State private var showHeatmap = false
+    @State private var showStartupToast = true
     
     var body: some View {
         VStack(spacing: 0) {

@@ -15,7 +15,13 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "PomodoroTimer",
-            path: ".",
+            path: "PomodoroTimer/PomodoroTimer",
+            exclude: [
+                "Assets.xcassets",
+                "Preview Content",
+                "PomodoroTimer.entitlements",
+                "Info.plist"
+            ],
             sources: [
                 "PomodoroApp.swift",
                 "PomodoroManager.swift",
