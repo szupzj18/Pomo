@@ -22,6 +22,13 @@ extension PomodoroSession {
     var dayKey: String {
         let calendar = Calendar.current
         let components = calendar.dateComponents([.year, .month, .day], from: date)
-        return "\(components.year!)-\(components.month!)-\(components.day!)"
+        guard let year = components.year,
+              let month = components.month,
+              let day = components.day else {
+            // Fallback to ISO8601 format if components extraction fails
+            let formatter = ISO8601DateFormatter()
+            return formatter.string(from: date)
+        }
+        return "\(year)-\(month)-\(day)"
     }
 }
