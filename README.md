@@ -89,6 +89,59 @@ swift build -c release
 - **数据持久化**: JSON 文件存储
 - **通知**: UserNotifications 框架
 - **菜单栏**: MenuBarExtra API
+- **测试框架**: SwiftTesting
+
+## 🧪 测试
+
+本项目包含全面的单元测试，使用最新的 SwiftTesting 框架。
+
+### 运行测试
+
+**使用 Xcode:**
+```bash
+# 在 Xcode 中按 ⌘U 运行所有测试
+# 或者使用命令行
+xcodebuild test -scheme PomodoroTimer
+```
+
+**使用 Swift Package Manager:**
+```bash
+swift test
+```
+
+**运行特定测试:**
+```bash
+# 运行特定测试套件
+swift test --filter PomodoroSessionTests
+
+# 运行特定测试用例
+swift test --filter testDayKeyFormat
+```
+
+### 测试覆盖
+
+- ✅ **37个测试用例** 覆盖核心功能
+- ✅ **9个测试套件** 系统化组织
+- ✅ **~70%+ 代码覆盖率**
+
+测试套件包括：
+- `PomodoroSessionTests` - 数据模型测试
+- `PomodoroManagerTests` - 业务逻辑测试
+- `SessionStatisticsTests` - 统计功能测试
+- `DateCalculationTests` - 日期计算测试
+- `TimerProgressTests` - 进度计算测试
+- `HeatmapColorTests` - 热力图测试
+- `EdgeCaseTests` - 边界情况测试
+- `PerformanceTests` - 性能测试
+
+### 测试文档
+
+详细的测试报告和可测试性分析：
+- 📊 [测试报告](TEST_REPORT.md) - 完整的测试覆盖率和测试用例说明
+- 🔧 [可测试性改进方案](TESTABILITY_IMPROVEMENTS.md) - 架构改进建议和最佳实践
+- 📁 [测试文件结构](TEST_FILE_STRUCTURE.md) - 测试文件组织和运行指南
+- 📋 [测试速查表](TEST_QUICK_REFERENCE.md) - 快速参考和诊断命令
+- 📝 [测试总结](TESTING_SUMMARY.md) - 工作总结和完成情况
 
 ## 📝 番茄工作法
 
