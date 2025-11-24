@@ -15,21 +15,9 @@ struct HeatmapView: View {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: cellSpacing) {
-                    // Day labels
-                    HStack(spacing: cellSpacing) {
-                        Text("")
-                            .frame(width: 30)
-                        ForEach(weekLabels, id: \.self) { label in
-                            Text(label)
-                                .font(.system(size: 8))
-                                .frame(width: cellSize, alignment: .center)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    
                     // Heatmap grid
                     HStack(alignment: .top, spacing: cellSpacing) {
-                        // Month labels
+                        // Day labels (rows)
                         VStack(spacing: cellSpacing) {
                             ForEach(0..<columns, id: \.self) { row in
                                 if let label = dayLabel(for: row) {
@@ -104,7 +92,7 @@ struct HeatmapView: View {
         
         // Calculate the start of the week grid (12 weeks ago)
         let weeksAgo = totalWeeks - week - 1
-        let daysAgo = weeksAgo * 7 + (6 - day)
+        let daysAgo = weeksAgo * 7 + day
         
         return calendar.date(byAdding: .day, value: -daysAgo, to: today) ?? today
     }

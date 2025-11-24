@@ -37,6 +37,7 @@ class PomodoroManager: ObservableObject {
     }
     
     func startTimer() {
+        guard !isRunning else { return }
         isRunning = true
         timer.schedule(interval: 1.0, repeats: true) { [weak self] _ in
             self?.tick()
@@ -88,12 +89,9 @@ class PomodoroManager: ObservableObject {
     }
     
     private func requestNotificationPermission() {
-        notificationService.requestPermission { [weak self] granted, error in
+        notificationService.requestPermission { granted, error in
             if let error = error {
                 print("Error requesting notification permission: \(error)")
-            }
-            if granted {
-                self?.notificationService.send(title: "番茄时钟已启动", body: "点击菜单栏图标开始专注")
             }
         }
     }

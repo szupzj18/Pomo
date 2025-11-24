@@ -34,8 +34,13 @@ class FileStorage: StorageProtocol {
     private let fileManager = FileManager.default
     
     private var sessionsURL: URL {
-        let documentsPath = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        return documentsPath.appendingPathComponent("pomodoro_sessions.json")
+        let appSupportPath = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        let appDirectory = appSupportPath.appendingPathComponent("PomodoroTimer", isDirectory: true)
+        
+        // Create directory if it doesn't exist
+        try? fileManager.createDirectory(at: appDirectory, withIntermediateDirectories: true, attributes: nil)
+        
+        return appDirectory.appendingPathComponent("pomodoro_sessions.json")
     }
     
     func save(_ sessions: [PomodoroSession]) throws {
