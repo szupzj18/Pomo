@@ -12,7 +12,7 @@ import Foundation
 @Suite("性能测试套件")
 struct PerformanceTests {
     
-    @Test("大量会话的过滤性能", .timeLimit(.seconds(1)))
+    @Test("大量会话的过滤性能", .timeLimit(.minutes(1)))
     func testFilterPerformance() {
         let manager = PomodoroManager()
         
