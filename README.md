@@ -139,6 +139,9 @@ swift test --filter testDayKeyFormat
 详细的测试报告和可测试性分析：
 - 📊 [测试报告](TEST_REPORT.md) - 完整的测试覆盖率和测试用例说明
 - 🔧 [可测试性改进方案](TESTABILITY_IMPROVEMENTS.md) - 架构改进建议和最佳实践
+- 📁 [测试文件结构](TEST_FILE_STRUCTURE.md) - 测试文件组织和运行指南
+- 📋 [测试速查表](TEST_QUICK_REFERENCE.md) - 快速参考和诊断命令
+- 📝 [测试总结](TESTING_SUMMARY.md) - 工作总结和完成情况
 
 ## 📝 番茄工作法
 
