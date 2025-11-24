@@ -1,6 +1,8 @@
 import Foundation
 import SwiftUI
+#if canImport(UserNotifications)
 import UserNotifications
+#endif
 
 class PomodoroManager: ObservableObject {
     @Published var timeRemaining: TimeInterval = 25 * 60 // 25 minutes
@@ -8,7 +10,10 @@ class PomodoroManager: ObservableObject {
     @Published var isWorking = true // true = work, false = break
     @Published var sessions: [PomodoroSession] = []
     
-    private var timer: Timer?
+    private var timer: TimerProtocol
+    private let storage: StorageProtocol
+    private let notificationService: NotificationServiceProtocol
+    
     private let workDuration: TimeInterval = 25 * 60
     private let breakDuration: TimeInterval = 5 * 60
     
@@ -18,24 +23,29 @@ class PomodoroManager: ObservableObject {
         return String(format: "%02d:%02d", minutes, seconds)
     }
     
-    init() {
+    init(
+        timer: TimerProtocol = SystemTimer(),
+        storage: StorageProtocol = FileStorage(),
+        notificationService: NotificationServiceProtocol = SystemNotificationService()
+    ) {
+        self.timer = timer
+        self.storage = storage
+        self.notificationService = notificationService
+        
         loadSessions()
-        if Bundle.main.bundleURL.pathExtension == "app" {
-            requestNotificationPermission()
-        }
+        requestNotificationPermission()
     }
     
     func startTimer() {
         isRunning = true
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+        timer.schedule(interval: 1.0, repeats: true) { [weak self] _ in
             self?.tick()
         }
     }
     
     func pauseTimer() {
         isRunning = false
-        timer?.invalidate()
-        timer = nil
+        timer.invalidate()
     }
     
     func resetTimer() {
@@ -58,8 +68,7 @@ class PomodoroManager: ObservableObject {
     }
     
     private func completeSession() {
-        timer?.invalidate()
-        timer = nil
+        timer.invalidate()
         isRunning = false
         
         if isWorking {
@@ -68,9 +77,9 @@ class PomodoroManager: ObservableObject {
             sessions.append(session)
             saveSessions()
             
-            sendNotification(title: "工作完成！", body: "是时候休息一下了")
+            notificationService.send(title: "工作完成！", body: "是时候休息一下了")
         } else {
-            sendNotification(title: "休息结束！", body: "准备开始下一个番茄钟")
+            notificationService.send(title: "休息结束！", body: "准备开始下一个番茄钟")
         }
         
         // Switch to next session type
@@ -79,49 +88,29 @@ class PomodoroManager: ObservableObject {
     }
     
     private func requestNotificationPermission() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
+        notificationService.requestPermission { [weak self] granted, error in
             if let error = error {
                 print("Error requesting notification permission: \(error)")
             }
             if granted {
-                self.sendNotification(title: "番茄时钟已启动", body: "点击菜单栏图标开始专注")
+                self?.notificationService.send(title: "番茄时钟已启动", body: "点击菜单栏图标开始专注")
             }
         }
     }
     
-    private func sendNotification(title: String, body: String) {
-        guard Bundle.main.bundleURL.pathExtension == "app" else { return }
-        let content = UNMutableNotificationContent()
-        content.title = title
-        content.body = body
-        content.sound = .default
-        
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
-        UNUserNotificationCenter.current().add(request)
-    }
-    
     // MARK: - Persistence
-    
-    private var sessionsURL: URL {
-        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        return documentsPath.appendingPathComponent("pomodoro_sessions.json")
-    }
     
     private func saveSessions() {
         do {
-            let data = try JSONEncoder().encode(sessions)
-            try data.write(to: sessionsURL)
+            try storage.save(sessions)
         } catch {
             print("Error saving sessions: \(error)")
         }
     }
     
     private func loadSessions() {
-        guard FileManager.default.fileExists(atPath: sessionsURL.path) else { return }
-        
         do {
-            let data = try Data(contentsOf: sessionsURL)
-            sessions = try JSONDecoder().decode([PomodoroSession].self, from: data)
+            sessions = try storage.load()
         } catch {
             print("Error loading sessions: \(error)")
         }
