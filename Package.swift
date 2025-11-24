@@ -30,6 +30,11 @@ let package = Package(
                 "PomodoroMenuView.swift",
                 "HeatmapView.swift"
             ]
+        ),
+        .testTarget(
+            name: "PomodoroTimerTests",
+            dependencies: ["PomodoroTimer"],
+            path: "PomodoroTimer/PomodoroTimerTests"
         )
     ]
 )
