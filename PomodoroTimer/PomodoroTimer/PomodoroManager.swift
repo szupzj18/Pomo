@@ -61,11 +61,13 @@ class PomodoroManager: ObservableObject {
     }
     
     private func tick() {
-        guard timeRemaining > 0 else {
-            completeSession()
-            return
+        if timeRemaining > 0 {
+            timeRemaining -= 1
         }
-        timeRemaining -= 1
+        
+        if timeRemaining <= 0 {
+            completeSession()
+        }
     }
     
     private func completeSession() {
