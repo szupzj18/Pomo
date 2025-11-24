@@ -25,6 +25,7 @@ let package = Package(
             sources: [
                 "PomodoroApp.swift",
                 "PomodoroManager.swift",
+                "PomodoroServices.swift",
                 "PomodoroSession.swift",
                 "PomodoroMenuView.swift",
                 "HeatmapView.swift"
