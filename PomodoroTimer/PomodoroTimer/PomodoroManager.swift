@@ -13,6 +13,7 @@ class PomodoroManager: ObservableObject {
     private var timer: TimerProtocol
     private let storage: StorageProtocol
     private let notificationService: NotificationServiceProtocol
+    private var isSessionsLoaded = false
     
     private let workDuration: TimeInterval = 25 * 60
     private let breakDuration: TimeInterval = 5 * 60
@@ -101,6 +102,8 @@ class PomodoroManager: ObservableObject {
     // MARK: - Persistence
     
     private func saveSessions() {
+        guard isSessionsLoaded else { return }
+        
         do {
             try storage.save(sessions)
         } catch {
@@ -109,10 +112,27 @@ class PomodoroManager: ObservableObject {
     }
     
     private func loadSessions() {
-        do {
-            sessions = try storage.load()
-        } catch {
-            print("Error loading sessions: \(error)")
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            do {
+                let loadedSessions = try self.storage.load()
+                DispatchQueue.main.async {
+                    // Merge loaded sessions with any new sessions created during load
+                    let currentSessions = self.sessions
+                    self.sessions = loadedSessions + currentSessions
+                    self.isSessionsLoaded = true
+                    
+                    // If new sessions were added during load, save the merged list
+                    if !currentSessions.isEmpty {
+                        self.saveSessions()
+                    }
+                }
+            } catch {
+                print("Error loading sessions: \(error)")
+                DispatchQueue.main.async {
+                    self.isSessionsLoaded = true
+                }
+            }
         }
     }
 }
