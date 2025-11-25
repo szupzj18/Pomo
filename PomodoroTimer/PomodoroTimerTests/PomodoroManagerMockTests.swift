@@ -58,6 +58,16 @@ struct PomodoroManagerMockTests {
         #expect(manager.isRunning == false)
         #expect(mockTimer.isInvalidated == true)
         
+        // Wait for background save operation to complete
+        // saveSessions() runs on background queue, so we need to wait for it
+        // Dispatch a task to the same background queue and wait for it to ensure
+        // any previous tasks (like save) have been processed
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .background).async {
+                continuation.resume()
+            }
+        }
+        
         // Check storage
         #expect(mockStorage.savedSessions.count == 1)
         #expect(mockStorage.savedSessions.first?.type == .work)

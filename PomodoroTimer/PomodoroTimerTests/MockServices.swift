@@ -27,12 +27,17 @@ class MockTimer: TimerProtocol {
 class MockStorage: StorageProtocol {
     var savedSessions: [PomodoroSession] = []
     var shouldThrowError = false
+    private let saveQueue = DispatchQueue(label: "MockStorage.save")
     
     func save(_ sessions: [PomodoroSession]) throws {
         if shouldThrowError {
             throw NSError(domain: "MockStorage", code: 1, userInfo: nil)
         }
-        savedSessions = sessions
+        // Use sync to ensure save completes before returning
+        // This helps with testing async save operations
+        saveQueue.sync {
+            savedSessions = sessions
+        }
     }
     
     func load() throws -> [PomodoroSession] {
