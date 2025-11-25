@@ -28,7 +28,8 @@ let package = Package(
                 "PomodoroServices.swift",
                 "PomodoroSession.swift",
                 "PomodoroMenuView.swift",
-                "HeatmapView.swift"
+                "HeatmapView.swift",
+                "HeatmapViewModel.swift"
             ]
         ),
         .testTarget(

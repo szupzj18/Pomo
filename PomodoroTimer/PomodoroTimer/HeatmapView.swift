@@ -5,10 +5,9 @@ struct HeatmapView: View {
     @StateObject private var viewModel: HeatmapViewModel
     
     init() {
-        // We will initialize the ViewModel with a placeholder manager
-        // The real manager will be injected/updated via onAppear or we can just pass it in methods
-        // Since we can't access EnvironmentObject in init, we'll handle dependency in body or onAppear
-        _viewModel = StateObject(wrappedValue: HeatmapViewModel(manager: PomodoroManager())) 
+        // Initialize ViewModel without manager dependency
+        // Manager is passed to ViewModel methods when needed
+        _viewModel = StateObject(wrappedValue: HeatmapViewModel())
     }
     
     var body: some View {
