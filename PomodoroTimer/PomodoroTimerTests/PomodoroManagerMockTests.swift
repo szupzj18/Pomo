@@ -25,7 +25,7 @@ struct PomodoroManagerMockTests {
     }
     
     @Test("Session completes when time reaches zero")
-    func testSessionCompletion() {
+    func testSessionCompletion() async throws {
         let mockTimer = MockTimer()
         let mockNotification = MockNotificationService()
         let mockStorage = MockStorage()
@@ -35,6 +35,9 @@ struct PomodoroManagerMockTests {
             storage: mockStorage,
             notificationService: mockNotification
         )
+        
+        // Wait for async load to complete so saveSessions can work
+        try await Task.sleep(for: .milliseconds(100))
         
         manager.isWorking = true
         manager.timeRemaining = 1
@@ -59,12 +62,15 @@ struct PomodoroManagerMockTests {
     }
     
     @Test("Load sessions from storage on init")
-    func testLoadSessions() {
+    func testLoadSessions() async throws {
         let mockStorage = MockStorage()
         let session = PomodoroSession(date: Date(), type: .work)
         mockStorage.savedSessions = [session]
         
         let manager = PomodoroManager(storage: mockStorage)
+        
+        // Wait for async load to complete
+        try await Task.sleep(for: .milliseconds(100))
         
         #expect(manager.sessions.count == 1)
         #expect(manager.sessions.first?.type == .work)
