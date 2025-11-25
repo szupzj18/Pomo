@@ -2,10 +2,14 @@ import SwiftUI
 
 struct HeatmapView: View {
     @EnvironmentObject var manager: PomodoroManager
+    @StateObject private var viewModel: HeatmapViewModel
     
-    private let columns = 7 // Days in a week
-    private let cellSize: CGFloat = 12
-    private let cellSpacing: CGFloat = 3
+    init() {
+        // We will initialize the ViewModel with a placeholder manager
+        // The real manager will be injected/updated via onAppear or we can just pass it in methods
+        // Since we can't access EnvironmentObject in init, we'll handle dependency in body or onAppear
+        _viewModel = StateObject(wrappedValue: HeatmapViewModel(manager: PomodoroManager())) 
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -14,31 +18,37 @@ struct HeatmapView: View {
                 .padding(.bottom, 4)
             
             ScrollView(.horizontal, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: cellSpacing) {
+                VStack(alignment: .leading, spacing: viewModel.cellSpacing) {
                     // Heatmap grid
-                    HStack(alignment: .top, spacing: cellSpacing) {
+                    HStack(alignment: .top, spacing: viewModel.cellSpacing) {
                         // Day labels (rows)
-                        VStack(spacing: cellSpacing) {
-                            ForEach(0..<columns, id: \.self) { row in
-                                if let label = dayLabel(for: row) {
+                        VStack(spacing: viewModel.cellSpacing) {
+                            ForEach(0..<viewModel.columns, id: \.self) { row in
+                                if let label = viewModel.dayLabel(for: row) {
                                     Text(label)
                                         .font(.system(size: 8))
-                                        .frame(width: 30, height: cellSize, alignment: .trailing)
+                                        .frame(width: 30, height: viewModel.cellSize, alignment: .trailing)
                                         .foregroundColor(.secondary)
                                 } else {
                                     Text("")
-                                        .frame(width: 30, height: cellSize)
+                                        .frame(width: 30, height: viewModel.cellSize)
                                 }
                             }
                         }
                         
                         // Grid cells
-                        ForEach(0..<totalWeeks, id: \.self) { week in
-                            VStack(spacing: cellSpacing) {
-                                ForEach(0..<columns, id: \.self) { day in
+                        ForEach(0..<viewModel.totalWeeks, id: \.self) { week in
+                            VStack(spacing: viewModel.cellSpacing) {
+                                ForEach(0..<viewModel.columns, id: \.self) { day in
+                                    let date = viewModel.date(for: week, day: day)
+                                    // Look up count directly from manager via viewModel helper
+                                    // Note: manager is observed by View, so changes trigger redraw
+                                    let count = viewModel.sessionCount(for: date, using: manager)
+                                    
                                     HeatmapCell(
-                                        count: sessionCount(for: week, day: day),
-                                        date: date(for: week, day: day)
+                                        count: count,
+                                        date: date,
+                                        color: viewModel.colorForCount(count)
                                     )
                                 }
                             }
@@ -56,8 +66,8 @@ struct HeatmapView: View {
                 
                 ForEach(0..<5, id: \.self) { level in
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(colorForLevel(level))
-                        .frame(width: cellSize, height: cellSize)
+                    .fill(viewModel.colorForLevel(level))
+                        .frame(width: viewModel.cellSize, height: viewModel.cellSize)
                 }
                 
                 Text("多")
@@ -67,60 +77,12 @@ struct HeatmapView: View {
             .padding(.top, 8)
         }
     }
-    
-    private var totalWeeks: Int {
-        // Show last 12 weeks
-        12
-    }
-    
-    private var weekLabels: [String] {
-        ["一", "二", "三", "四", "五", "六", "日"]
-    }
-    
-    private func dayLabel(for row: Int) -> String? {
-        switch row {
-        case 1: return "一"
-        case 3: return "三"
-        case 5: return "五"
-        default: return nil
-        }
-    }
-    
-    private func date(for week: Int, day: Int) -> Date {
-        let calendar = Calendar.current
-        let today = Date()
-        
-        // Calculate the start of the week grid (12 weeks ago)
-        let weeksAgo = totalWeeks - week - 1
-        let daysAgo = weeksAgo * 7 + day
-        
-        return calendar.date(byAdding: .day, value: -daysAgo, to: today) ?? today
-    }
-    
-    private func sessionCount(for week: Int, day: Int) -> Int {
-        let targetDate = date(for: week, day: day)
-        let calendar = Calendar.current
-        
-        return manager.sessions.filter { session in
-            calendar.isDate(session.date, inSameDayAs: targetDate) && session.type == .work
-        }.count
-    }
-    
-    private func colorForLevel(_ level: Int) -> Color {
-        switch level {
-        case 0: return Color(NSColor.systemGray).opacity(0.1)
-        case 1: return Color.green.opacity(0.3)
-        case 2: return Color.green.opacity(0.5)
-        case 3: return Color.green.opacity(0.7)
-        case 4: return Color.green.opacity(0.9)
-        default: return Color(NSColor.systemGray).opacity(0.1)
-        }
-    }
 }
 
 struct HeatmapCell: View {
     let count: Int
     let date: Date
+    let color: Color
     @State private var isHovered = false
     
     private let cellSize: CGFloat = 12
@@ -139,23 +101,21 @@ struct HeatmapCell: View {
             }
     }
     
-    private var color: Color {
-        switch count {
-        case 0: return Color(NSColor.systemGray).opacity(0.1)
-        case 1: return Color.green.opacity(0.3)
-        case 2: return Color.green.opacity(0.5)
-        case 3...4: return Color.green.opacity(0.7)
-        default: return Color.green.opacity(0.9)
-        }
-    }
-    
     private var tooltipText: String {
+        // Use a static formatter for performance
+        let dateString = DateFormatter.sharedCN.string(from: date)
+        return "\(dateString): \(count) 个番茄钟"
+    }
+}
+
+// Performance optimization for DateFormatter
+extension DateFormatter {
+    static let sharedCN: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.locale = Locale(identifier: "zh_CN")
-        let dateString = formatter.string(from: date)
-        return "\(dateString): \(count) 个番茄钟"
-    }
+        return formatter
+    }()
 }
 
 #Preview {
