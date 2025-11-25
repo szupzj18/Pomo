@@ -45,7 +45,7 @@ class FileStorage: StorageProtocol {
     
     func save(_ sessions: [PomodoroSession]) throws {
         let data = try JSONEncoder().encode(sessions)
-        try data.write(to: sessionsURL)
+        try data.write(to: sessionsURL, options: .atomic)
     }
     
     func load() throws -> [PomodoroSession] {
