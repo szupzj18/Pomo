@@ -8,7 +8,20 @@ class PomodoroManager: ObservableObject {
     @Published var timeRemaining: TimeInterval = 25 * 60 // 25 minutes
     @Published var isRunning = false
     @Published var isWorking = true // true = work, false = break
-    @Published var sessions: [PomodoroSession] = []
+    @Published var sessions: [PomodoroSession] = [] {
+        didSet {
+            // Automatically rebuild dailyStats when sessions are set directly (e.g., in tests)
+            // rebuildDailyStats() is idempotent, so it's safe to call multiple times
+            // Ensure this runs on main thread since dailyStats is @Published
+            if Thread.isMainThread {
+                rebuildDailyStats()
+            } else {
+                DispatchQueue.main.async { [weak self] in
+                    self?.rebuildDailyStats()
+                }
+            }
+        }
+    }
     @Published var dailyStats: [String: Int] = [:] // Cache for O(1) lookup
     
     private var timer: TimerProtocol

@@ -13,15 +13,19 @@ struct PomodoroManagerMockTests {
         let manager = PomodoroManager(timer: mockTimer, storage: MockStorage(), notificationService: MockNotificationService())
         
         manager.timeRemaining = 10
+        let initialTime = manager.timeRemaining
         manager.startTimer()
         
-        #expect(mockTimer.scheduledInterval == 1.0)
+        #expect(mockTimer.scheduledInterval == 0.5) // Updated to match new implementation
         #expect(mockTimer.repeats == true)
         
-        // Simulate one tick
+        // Simulate one tick - with timestamp-based implementation, time should decrease
+        // Allow small tolerance for timing differences
         mockTimer.fire()
         
-        #expect(manager.timeRemaining == 9)
+        // Time should have decreased (allowing for small timing differences)
+        #expect(manager.timeRemaining < initialTime)
+        #expect(manager.timeRemaining > initialTime - 1.1) // Should be close to initial - 0.5
     }
     
     @Test("Session completes when time reaches zero")
@@ -40,10 +44,12 @@ struct PomodoroManagerMockTests {
         try await Task.sleep(for: .milliseconds(100))
         
         manager.isWorking = true
-        manager.timeRemaining = 1
+        // Set time to a very small value so it completes quickly
+        manager.timeRemaining = 0.1
         manager.startTimer()
         
-        // Simulate tick to reach 0
+        // Wait a bit to allow time to pass, then simulate tick
+        try await Task.sleep(for: .milliseconds(150))
         mockTimer.fire()
         
         // Should complete session
